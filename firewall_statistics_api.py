@@ -6,41 +6,10 @@ import os
 import pprint
 import time
 import yaml
-from logging.handlers import TimedRotatingFileHandler
 
 requests.packages.urllib3.disable_warnings()
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
-def get_logger(logfile, level):
-    '''
-    Create a logger
-    '''
-    if logfile is not None:
-
-        '''
-        Create the log directory if it doesn't exist
-        '''
-
-        fldr = os.path.dirname(logfile)
-        if not os.path.exists(fldr):
-            os.makedirs(fldr)
-
-        logger = logging.getLogger()
-        logger.setLevel(level)
- 
-        log_format = '%(asctime)s | %(levelname)-8s | %(funcName)-20s | %(lineno)-3d | %(message)s'
-        formatter = logging.Formatter(log_format)
- 
-        file_handler = TimedRotatingFileHandler(logfile, when='midnight', backupCount=7)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(level)
-        logger.addHandler(file_handler)
-
-        return logger
-
-    return None
-
 
 class Authentication:
 
@@ -57,8 +26,7 @@ class Authentication:
             jsessionid = cookies.split(";")
             return(jsessionid[0])
         except:
-            if logger is not None:
-                logger.error("No valid JSESSION ID returned\n")
+            print("No valid JSESSION ID returned\n")
             exit()
        
     @staticmethod
@@ -77,11 +45,7 @@ if __name__ == '__main__':
 
     try:
 
-        log_level = logging.DEBUG
-        logger = get_logger("log/firewall_stats.txt", log_level)
-
-        if logger is not None:
-            logger.info("Loading vManage login details from YAML\n")
+        print("Loading vManage login details from YAML\n")
         with open("vmanage_login.yaml") as f:
             config = yaml.safe_load(f.read())
 
@@ -150,8 +114,6 @@ if __name__ == '__main__':
             items = response.json()['data']
         else:
             print("\nFailed to retrieve Firewall Inspect Session statistics")
-            if logger is not None:
-                logger.error("\nFailed to retrieve Firewall Inspect Session statistics")
             exit()
 
 
